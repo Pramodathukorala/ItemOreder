@@ -1,51 +1,47 @@
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import jsPDF from 'jspdf';
 
-const generateBill = (orderData) => {
+const generateBill = (order) => {
   const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.text("Order Invoice", 14, 22);
-
+  
+  // Set up document
+  doc.setFontSize(20);
+  doc.text('Order Bill', 85, 20);
+  
+  // Add order details
   doc.setFontSize(12);
-  doc.text(`Order ID: ${orderData.orderId}`, 14, 40);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 50);
-
-  doc.setFontSize(16);
-  doc.text("Customer Information", 14, 70);
-  doc.setFontSize(12);
-  doc.text(`Name: ${orderData.customerInfo.name}`, 14, 85);
-  doc.text(`Email: ${orderData.customerInfo.email}`, 14, 95);
-  doc.text(`Mobile: ${orderData.customerInfo.mobile}`, 14, 105);
-
-  if (orderData.customerInfo.dineMethod === "Deliver") {
-    doc.setFontSize(16);
-    doc.text("Delivery Information", 14, 125);
-    doc.setFontSize(12);
-    doc.text(`Address: ${orderData.deliveryInfo.address}`, 14, 140);
-    doc.text(`City: ${orderData.deliveryInfo.city}`, 14, 150);
-    doc.text(`Postal Code: ${orderData.deliveryInfo.postalCode}`, 14, 160);
-  }
-
-  doc.setFontSize(16);
-  doc.text("Order Summary", 14, 180);
-  const tableColumn = ["Item", "Quantity", "Price"];
-  const tableRows = orderData.items.map((item) => [
-    item.title,
-    item.quantity,
-    `$${(item.price * item.quantity).toFixed(2)}`,
-  ]);
-
-  doc.autoTable(tableColumn, tableRows, { startY: 190 });
-
-  doc.setFontSize(14);
-  doc.text(
-    `Total: $${orderData.total.toFixed(2)}`,
-    14,
-    doc.lastAutoTable.finalY + 10
-  );
-
-  doc.save(`order-${orderData.orderId}.pdf`);
+  doc.text(`Order ID: ${order.orderId}`, 20, 40);
+  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 20, 50);
+  doc.text(`Customer: ${order.customerInfo.name}`, 20, 60);
+  
+  // Add items table
+  let yPos = 80;
+  doc.text('Item', 20, yPos);
+  doc.text('Qty', 100, yPos);
+  doc.text('Price', 140, yPos);
+  doc.text('Total', 180, yPos);
+  
+  yPos += 10;
+  doc.line(20, yPos, 190, yPos);
+  yPos += 10;
+  
+  // Add items
+  order.items.forEach(item => {
+    doc.text(item.title, 20, yPos);
+    doc.text(item.quantity.toString(), 100, yPos);
+    doc.text(`$${item.price.toFixed(2)}`, 140, yPos);
+    doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 180, yPos);
+    yPos += 10;
+  });
+  
+  // Add total
+  yPos += 10;
+  doc.line(20, yPos, 190, yPos);
+  yPos += 10;
+  doc.setFont(undefined, 'bold');
+  doc.text(`Total Amount: $${order.total.toFixed(2)}`, 140, yPos);
+  
+  // Save the PDF
+  doc.save(`order-bill-${order.orderId}.pdf`);
 };
 
 export default generateBill;

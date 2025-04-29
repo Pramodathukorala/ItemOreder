@@ -31,12 +31,7 @@ const orderSchema = new mongoose.Schema({
   customerInfo: {
     name: String,
     email: String,
-    mobile: String,
-    dineMethod: {
-      type: String,
-      enum: ["Take Away", "Dine In", "Deliver"],
-      default: "Take Away",
-    },
+    mobile: String
   },
   deliveryInfo: {
     address: String,
