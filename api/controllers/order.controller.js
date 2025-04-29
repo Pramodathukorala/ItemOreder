@@ -17,9 +17,53 @@ const generateOrderId = async () => {
   return orderId;
 };
 
-// Controller for creating a new order
+// Add validation helpers at the top
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePhone = (phone) => {
+  // Allow only numbers, minimum 10 digits
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phone);
+};
+
+exports.updateOrder = async (req, res) => {
+  try {
+    const { customerInfo } = req.body;
+
+    // Validate email and phone if they are being updated
+    if (customerInfo) {
+      if (customerInfo.email && !validateEmail(customerInfo.email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      if (customerInfo.mobile && !validatePhone(customerInfo.mobile)) {
+        return res.status(400).json({ message: "Invalid phone number format" });
+      }
+    }
+
+    const order = await Order.findByIdAndUpdate(req.params.orderId, req.body, {
+      new: true,
+    });
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.createOrder = async (req, res) => {
   try {
+    const { customerInfo } = req.body;
+
+    // Validate customer information
+    if (!validateEmail(customerInfo.email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+    if (!validatePhone(customerInfo.mobile)) {
+      return res.status(400).json({ message: "Invalid phone number format" });
+    }
+
     const orderId = await generateOrderId();
     const orderData = { ...req.body, orderId };
 
@@ -46,17 +90,6 @@ exports.deleteOrder = async (req, res) => {
   try {
     await Order.findByIdAndDelete(req.params.orderId);
     res.json({ message: "Order deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.updateOrder = async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.orderId, req.body, {
-      new: true,
-    });
-    res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

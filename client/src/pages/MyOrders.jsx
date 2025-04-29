@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import EditOrderPopup from "../components/EditOrderPopup";
 import LoadingSpinner from "../components/Spinner";
+import generateBill from "../components/GenarateBill";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -69,7 +70,13 @@ const MyOrders = () => {
   };
 
   const handleDownloadBill = (order) => {
-    Swal.fire("Info", "Bill download functionality coming soon!", "info");
+    try {
+      generateBill(order);
+      Swal.fire("Success", "Bill downloaded successfully!", "success");
+    } catch (error) {
+      console.error('Error generating bill:', error);
+      Swal.fire("Error", "Failed to download bill", "error");
+    }
   };
 
   const handleToggleExpand = (orderId) => {
@@ -171,24 +178,14 @@ const MyOrders = () => {
 
                       {/* Delivery Information Section */}
                       <div className="flex-1 pl-4">
-                        {order.deliveryInfo.address ? (
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              Delivery Information:
-                            </h3>
-                            <p>Address: {order.deliveryInfo.address}</p>
-                            <p>City: {order.deliveryInfo.city}</p>
-                            <p>Postal Code: {order.deliveryInfo.postalCode}</p>
-                            <p>Delivery Method: Delivery</p>
-                          </div>
-                        ) : (
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              Dine-in Information:
-                            </h3>
-                            <p>Dine-in Method: Dine-In</p>
-                          </div>
-                        )}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Delivery Information:
+                          </h3>
+                          <p>Address: {order.deliveryInfo.address}</p>
+                          <p>City: {order.deliveryInfo.city}</p>
+                          <p>Postal Code: {order.deliveryInfo.postalCode}</p>
+                        </div>
                       </div>
                     </div>
 

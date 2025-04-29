@@ -12,8 +12,7 @@ const Checkout = () => {
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     email: "",
-    mobile: "",
-    dineMethod: "Take Away",
+    mobile: ""
   });
   const [deliveryInfo, setDeliveryInfo] = useState({
     address: "",
@@ -48,6 +47,17 @@ const Checkout = () => {
 
   // Function to validate form inputs
   const validateForm = () => {
+    // Phone number validation
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(customerInfo.mobile)) {
+      Swal.fire(
+        "Validation Error",
+        "Please enter a valid 10-digit phone number",
+        "error"
+      );
+      return false;
+    }
+
     if (!customerInfo.name || !customerInfo.email || !customerInfo.mobile) {
       Swal.fire(
         "Validation Error",
@@ -187,56 +197,33 @@ const Checkout = () => {
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
           />
-          <div className="flex space-x-4 mt-2">
-            {["Take Away", "Dine In", "Deliver"].map((method) => (
-              <label key={method} className="flex items-center">
-                <input
-                  type="radio"
-                  name="dineMethod"
-                  value={method}
-                  checked={customerInfo.dineMethod === method}
-                  onChange={() =>
-                    setCustomerInfo({ ...customerInfo, dineMethod: method })
-                  }
-                  className="mr-2"
-                />
-                {method}
-              </label>
-            ))}
-          </div>
 
-          {/* Delivery Info Section (Only if Deliver is selected) */}
-          {customerInfo.dineMethod === "Deliver" && (
-            <>
-              <h2 className="text-xl font-semibold mt-4 mb-2">
-                Delivery Information
-              </h2>
-              <input
-                type="text"
-                name="address"
-                placeholder="Address"
-                value={deliveryInfo.address}
-                onChange={handleDeliveryChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="city"
-                placeholder="City"
-                value={deliveryInfo.city}
-                onChange={handleDeliveryChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="postalCode"
-                placeholder="Postal Code"
-                value={deliveryInfo.postalCode}
-                onChange={handleDeliveryChange}
-                className="w-full p-2 border rounded"
-              />
-            </>
-          )}
+          {/* Delivery Info Section */}
+          <h2 className="text-xl font-semibold mt-4 mb-2">Delivery Information</h2>
+          <input
+            type="text"
+            name="address"
+            placeholder="Address"
+            value={deliveryInfo.address}
+            onChange={handleDeliveryChange}
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            value={deliveryInfo.city}
+            onChange={handleDeliveryChange}
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="text"
+            name="postalCode"
+            placeholder="Postal Code"
+            value={deliveryInfo.postalCode}
+            onChange={handleDeliveryChange}
+            className="w-full p-2 border rounded"
+          />
 
           {/* Payment Info Section */}
           <h2 className="text-xl font-semibold mt-4 mb-2">

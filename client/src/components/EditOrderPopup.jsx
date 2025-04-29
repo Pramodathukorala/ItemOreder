@@ -2,9 +2,20 @@ import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePhone = (phone) => {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phone);
+};
+
 const EditOrderPopup = ({ order, onClose, onUpdate }) => {
   const [customer, setCustomer] = useState(order.customerInfo || {});
   const [delivery, setDelivery] = useState(order.deliveryInfo || {});
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e, field, isCustomer = true) => {
     const { name, value } = e.target;
@@ -16,11 +27,25 @@ const EditOrderPopup = ({ order, onClose, onUpdate }) => {
   };
 
   const handleUpdate = async () => {
+    setErrors({});
+    const newErrors = {};
+    if (!validateEmail(customer.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!validatePhone(customer.mobile)) {
+      newErrors.mobile = "Please enter a valid 10-digit phone number";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const updatedOrder = {
         ...order,
-        customerInfo: customer, // Use customerInfo to update the customer details
-        deliveryInfo: delivery, // Use deliveryInfo to update delivery details
+        customerInfo: customer,
+        deliveryInfo: delivery,
       };
 
       const response = await axios.put(
@@ -54,18 +79,28 @@ const EditOrderPopup = ({ order, onClose, onUpdate }) => {
             name="email"
             value={customer.email || ""}
             onChange={(e) => handleInputChange(e, "email")}
-            className="w-full p-2 border border-gray-300 rounded mb-2"
+            className={`w-full p-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded mb-2`}
             placeholder="Email"
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm mb-2">{errors.email}</p>
+          )}
 
           <input
-            type="mobile"
+            type="tel"
             name="mobile"
             value={customer.mobile || ""}
             onChange={(e) => handleInputChange(e, "mobile")}
-            className="w-full p-2 border border-gray-300 rounded mb-2"
+            className={`w-full p-2 border ${
+              errors.mobile ? "border-red-500" : "border-gray-300"
+            } rounded mb-2`}
             placeholder="Mobile"
           />
+          {errors.mobile && (
+            <p className="text-red-500 text-sm mb-2">{errors.mobile}</p>
+          )}
         </div>
 
         {delivery && delivery.address && (
